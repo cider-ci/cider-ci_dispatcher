@@ -82,7 +82,10 @@
 (defn- eval-new-state [task trial-states]
   (let [spec (-> task :task_specification_id get-task-spec-data)]
     (if (= "satisfy-last" (-> spec :aggregate-state))
-      (or (last trial-states) "pending")
+      (let [state (or (last trial-states) "pending")]
+        (case state
+          "dispatching" "executing"
+          state))
       (cond (empty? trial-states) "aborted"
             (some #{"passed"} trial-states) "passed"
             (every? #{"aborted"} trial-states ) "aborted"
